@@ -1,0 +1,19 @@
+@model TecnoNovaCRUD.Models.TecnoNovaPage
+<dialog id="tn-quick-modal" class="tn-quick-dialog" aria-labelledby="tn-modal-title">
+  <div class="tn-modal-top"><span class="tn-eyebrow">TECNONOVA / ALTA RÁPIDA</span><button type="button" class="tn-modal-x" data-tn-modal-close aria-label="Cerrar formulario">×</button></div>
+  <h2 id="tn-modal-title">Nuevo producto</h2><p>Registra un equipo sin salir de esta pantalla.</p>
+  <form asp-controller="Interfaz" asp-action="Crear" method="post" class="tn-form tn-quick-form" data-tn-form novalidate>
+    <div class="tn-field-row">
+      <div class="tn-field"><label for="tn-quick-sku">Código SKU</label><input class="tn-input" id="tn-quick-sku" name="Sku" maxlength="30" required placeholder="TN-LAP-1010" /></div>
+      <div class="tn-field"><label for="tn-quick-category">Categoría</label><select class="tn-select" id="tn-quick-category" name="CategoriaId" required><option value="">Elige una categoría</option>@foreach(var c in Model.Categorias){<option value="@c.Id" selected="@((Model.Categorias.FirstOrDefault(x => x.Nombre.Equals("Laptops", StringComparison.OrdinalIgnoreCase))?.Id ?? Model.Categorias.FirstOrDefault()?.Id) == c.Id)">@c.Nombre</option>}</select></div>
+    </div>
+    <div class="tn-field"><label for="tn-quick-name">Nombre del equipo</label><input class="tn-input" id="tn-quick-name" name="Nombre" maxlength="100" required placeholder="Ej. Laptop para estudio" /></div>
+    <div class="tn-field-row">
+      <div class="tn-field"><label for="tn-quick-price">Precio (Bs)</label><input class="tn-input" id="tn-quick-price" name="PrecioTexto" inputmode="decimal" required placeholder="Ej. 1234,50" /></div>
+      <div class="tn-field"><label for="tn-quick-stock">Cantidad</label><input class="tn-input" id="tn-quick-stock" name="Stock" type="number" min="0" step="1" value="1" required /></div>
+    </div>
+    <p class="tn-hint">Esc: cancelar · Enter o Ctrl+S: guardar</p>
+    <p class="tn-field-error" data-tn-quick-error role="alert" aria-live="polite"></p>
+    <div class="tn-cta-row"><button class="tn-btn tn-btn--primary" type="submit">Guardar producto</button><button class="tn-btn tn-btn--ghost" type="button" data-tn-modal-close>Cancelar</button></div>
+  </form>
+</dialog>

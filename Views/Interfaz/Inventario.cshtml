@@ -1,0 +1,49 @@
+@model TecnoNovaCRUD.Models.TecnoNovaPage
+@using System.Globalization
+@{
+    ViewData["Title"] = "Inventario";
+    var bo = CultureInfo.GetCultureInfo("es-BO");
+    var lista = Model.Productos;
+    var maxStock = Math.Max(1, lista.Select(p => p.Stock).DefaultIfEmpty(0).Max());
+    var bajos = lista.Count(p => p.Stock < 5);
+    var valor = lista.Sum(p => p.Precio * p.Stock);
+}
+<section class="tn-page" data-tn-page="inventory">
+  <span class="tn-eyebrow" data-tn-reveal>03 / MICROCHIP · CENTRO DE CONTROL</span>
+  <h1 class="tn-h2" data-tn-reveal>Inventario</h1>
+  <p class="tn-lead" data-tn-reveal>Revisa las existencias de tu tienda sin salir de TecnoNova.</p>
+  @if (Model.ModoDemostracion){<div class="tn-demo-banner" role="status">MODO DEMOSTRACIÓN · Las altas, ediciones y eliminaciones se guardan en un archivo local.</div>}
+  @if (Model.SinConexion){<div class="tn-db-warning" role="status">PostgreSQL no está disponible. Los contadores no representan productos reales guardados.</div>}
+  @if (TempData["Mensaje"] is string mensaje){<div class="tn-success" role="status">@mensaje</div>}
+  <div class="tn-kpis">
+    <div class="tn-glass tn-kpi" data-tn-reveal><small>Productos</small><strong data-tn-count="@lista.Count">@lista.Count</strong></div>
+    <div class="tn-glass tn-kpi" data-tn-reveal><small>Unidades</small><strong data-tn-count="@Model.TotalUnidades">@Model.TotalUnidades</strong></div>
+    <div class="tn-glass tn-kpi" data-tn-reveal><small>Stock bajo (&lt; 5)</small><strong data-tn-count="@bajos">@bajos</strong></div>
+    <div class="tn-glass tn-kpi" data-tn-reveal><small>Valor (Bs)</small><strong>@valor.ToString("N0",bo)</strong></div>
+  </div>
+  <div class="tn-toolbar" data-tn-reveal>
+    <input type="search" class="tn-input tn-search" aria-label="Buscar dentro del inventario" placeholder="Buscar nombre, SKU o categoría…" data-tn-inventory-search />
+    <button type="button" class="tn-btn tn-btn--ghost tn-btn--sm" data-tn-export>↓ Descargar CSV</button>
+    <button type="button" class="tn-btn tn-btn--primary tn-btn--sm" data-tn-open-modal>+ Nuevo producto</button>
+  </div>
+  <div class="tn-glass tn-table-wrap" data-tn-reveal>
+    <table class="tn-table">
+      <thead><tr><th>Producto</th><th>Categoría</th><th>Precio (Bs)</th><th>Stock</th><th>Acciones</th></tr></thead>
+      <tbody>
+        @foreach(var p in lista)
+        {
+          <tr data-tn-inventory-row data-search="@((p.Nombre + " " + p.Sku + " " + p.CategoriaNombre).ToLowerInvariant())" data-sku="@p.Sku" data-name="@p.Nombre" data-category="@p.CategoriaNombre" data-price="@p.Precio.ToString(CultureInfo.InvariantCulture)" data-stock="@p.Stock">
+            <td><div class="tn-prod"><partial name="_ProductoFoto" model="@($"{p.Nombre}|{p.CategoriaNombre}")"/><div><b>@p.Nombre</b><span class="tn-sku">@p.Sku</span></div></div></td>
+            <td>@p.CategoriaNombre</td>
+            <td>Bs @p.Precio.ToString("N2",bo)</td>
+            <td>@p.Stock<div class="tn-bar"><i data-tn-stock class="@(p.Stock < 5 ? "is-low" : "")" style="width:@((p.Stock * 100 / maxStock).ToString(CultureInfo.InvariantCulture))%"></i></div></td>
+            <td><div class="tn-actions"><a class="tn-btn tn-btn--ghost tn-btn--sm" asp-controller="Productos" asp-action="Edit" asp-route-id="@p.Id" data-tn-native>Editar</a><a class="tn-btn tn-btn--danger tn-btn--sm" asp-controller="Productos" asp-action="Delete" asp-route-id="@p.Id" data-tn-native>Eliminar</a></div></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  <p class="tn-empty-static" data-tn-inventory-empty hidden>No encontramos coincidencias en el inventario.</p>
+  <div class="tn-cta-row" style="margin-top:24px"><a asp-controller="Productos" asp-action="Index" class="tn-btn tn-btn--ghost" data-tn-native>Abrir CRUD original</a></div>
+</section>
+<partial name="_RegistroModal" model="Model" />

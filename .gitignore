@@ -1,0 +1,22 @@
+# Compilación
+bin/
+obj/
+.vs/
+.idea/
+*.user
+*.suo
+# Credenciales y configuración privada
+appsettings.Development.json
+.env
+.env.*
+**/secrets.json
+*.pfx
+*.key
+# Caché/sistema
+.DS_Store
+Thumbs.db
+# Demo local (se guarda en localStorage y no crea archivos)
+
+frontend/node_modules/
+frontend/dist/
+**/node_modules/

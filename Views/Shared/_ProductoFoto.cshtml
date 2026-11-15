@@ -1,0 +1,10 @@
+@model string
+@{
+    var t = (Model ?? string.Empty).ToLowerInvariant();
+    var archivo =
+        t.Contains("cel") || t.Contains("phone") || t.Contains("smart") || t.Contains("tel") ? "celular-1.jpg" :
+        t.Contains("proces") || t.Contains("gpu") || t.Contains("cpu") || t.Contains("comp") || t.Contains("ryzen") || t.Contains("intel") ? "procesador-1.jpg" :
+        t.Contains("placa") || t.Contains("mother") || t.Contains("board") || t.Contains("hub") || t.Contains("usb") || t.Contains("acces") ? "placa-1.jpg" :
+        t.Contains("lap") || t.Contains("note") || t.Contains("book") ? "laptop-1.jpg" : "laptop-2.jpg";
+}
+<img src="~/img/productos/@archivo" alt="Imagen de referencia de @Model" loading="lazy" width="900" height="700" />

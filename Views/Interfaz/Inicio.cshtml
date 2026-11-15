@@ -1,0 +1,22 @@
+@model TecnoNovaCRUD.Models.TecnoNovaPage
+@{ ViewData["Title"] = "Inicio"; }
+<section class="tn-page" data-tn-page="home">
+  <div class="tn-hero">
+    <span class="tn-eyebrow" data-tn-reveal>TECNONOVA BOLIVIA · EXPERIENCIA 3D</span>
+    <h1 class="tn-h1" data-tn-reveal>El corazón de tu próxima <em>máquina</em></h1>
+    <p class="tn-lead" data-tn-reveal>Laptops, celulares, componentes y accesorios. Entra a nuestro universo tecnológico y administra tus productos sin perder el control.</p>
+    <div class="tn-cta-row" data-tn-reveal>
+      <a class="tn-btn tn-btn--primary" asp-controller="Interfaz" asp-action="Catalogo">Explorar catálogo ↗</a>
+      <button type="button" class="tn-btn tn-btn--ghost" data-tn-open-modal>+ Nuevo producto</button>
+    </div>
+    @if (Model.ModoDemostracion){<p class="tn-demo-banner" role="status">MODO DEMOSTRACIÓN · El CRUD funciona con un archivo local, sin PostgreSQL.</p>}
+    @if (Model.SinConexion){<p class="tn-db-warning" role="status">No hay conexión con PostgreSQL. Las escenas 3D pueden verse, pero los productos requieren la base de datos.</p>}
+    <div class="tn-hero-counts" data-tn-reveal><span><strong data-tn-count="@Model.Productos.Count">@Model.Productos.Count</strong> productos</span><span><strong data-tn-count="@Model.Categorias.Count">@Model.Categorias.Count</strong> categorías</span><span><strong data-tn-count="@Model.TotalUnidades">@Model.TotalUnidades</strong> unidades</span></div>
+  </div>
+  <div class="tn-features">
+    <a class="tn-glass tn-feature" asp-controller="Interfaz" asp-action="Catalogo" data-tn-reveal data-tn-tilt><i>01</i><b>Catálogo</b><span>Explora todos los equipos con fotografías reales de referencia.</span></a>
+    <a class="tn-glass tn-feature" asp-controller="Interfaz" asp-action="Inventario" data-tn-reveal data-tn-tilt><i>02</i><b>Inventario</b><span>Controla cantidades, edita y elimina desde tu base PostgreSQL.</span></a>
+    <a class="tn-glass tn-feature" asp-controller="Interfaz" asp-action="Nuevo" data-tn-reveal data-tn-tilt><i>03</i><b>Nuevo producto</b><span>Registra equipos con validación y atajos de teclado.</span></a>
+  </div>
+</section>
+<partial name="_RegistroModal" model="Model" />

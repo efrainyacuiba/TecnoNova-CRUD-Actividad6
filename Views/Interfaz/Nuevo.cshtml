@@ -1,0 +1,29 @@
+@model TecnoNovaCRUD.Models.TecnoNovaPage
+@{
+    ViewData["Title"] = "Nuevo producto";
+}
+<section class="tn-page" data-tn-page="nuevo">
+  <span class="tn-eyebrow" data-tn-reveal>04 / CÁMARA DE ENSAMBLAJE</span>
+  <h1 class="tn-h2" data-tn-reveal>Nuevo producto</h1>
+  <p class="tn-lead" data-tn-reveal>Registra un equipo nuevo. Si algún dato está mal, puedes corregirlo sin perder lo que ya escribiste.</p>
+  @if (Model.ModoDemostracion){<div class="tn-demo-banner" role="status">MODO DEMOSTRACIÓN · Los productos se guardan en un archivo local, no en PostgreSQL.</div>}
+  @if (Model.SinConexion){<div class="tn-db-warning" role="status">No hay conexión con PostgreSQL. Revisa el servidor antes de guardar.</div>}
+  @if (!ViewData.ModelState.IsValid){<div class="tn-db-warning" role="alert">Revisa los campos marcados. Tus datos siguen en el formulario.</div>}
+  <div class="tn-new">
+    <form asp-controller="Interfaz" asp-action="Crear" method="post" class="tn-glass tn-form" data-tn-form data-tn-reveal id="tn-main-form" novalidate>
+      <div asp-validation-summary="ModelOnly" class="tn-errors" role="alert"></div>
+      <div class="tn-field-row">
+        <div class="tn-field"><label for="Sku">Código del producto (SKU)</label><input class="tn-input" id="Sku" name="Sku" value="@Model.Entrada.Sku" maxlength="30" required autocomplete="off" placeholder="TN-LAP-1010" aria-describedby="tn-err-sku" /><span class="tn-field-error" id="tn-err-sku">@Html.ValidationMessage("Sku")</span></div>
+        <div class="tn-field"><label for="CategoriaId">Categoría</label><select class="tn-select" id="CategoriaId" name="CategoriaId" required aria-describedby="tn-err-cat"><option value="">Elige la categoría</option>@foreach(var c in Model.Categorias){<option value="@c.Id" selected="@(Model.Entrada.CategoriaId == c.Id)">@c.Nombre</option>}</select><span class="tn-field-error" id="tn-err-cat">@Html.ValidationMessage("CategoriaId")</span></div>
+      </div>
+      <div class="tn-field"><label for="Nombre">Nombre del equipo</label><input class="tn-input" id="Nombre" name="Nombre" value="@Model.Entrada.Nombre" maxlength="100" required autocomplete="off" placeholder="Laptop para estudio" aria-describedby="tn-err-nombre" /><span class="tn-field-error" id="tn-err-nombre">@Html.ValidationMessage("Nombre")</span></div>
+      <div class="tn-field-row">
+        <div class="tn-field"><label for="PrecioTexto">Precio en bolivianos (Bs)</label><input class="tn-input" id="PrecioTexto" name="PrecioTexto" type="text" inputmode="decimal" value="@Model.Entrada.PrecioTexto" required autocomplete="off" placeholder="4255,92" aria-describedby="tn-err-precio" /><span class="tn-hint">Acepta coma o punto.</span><span class="tn-field-error" id="tn-err-precio">@Html.ValidationMessage("PrecioTexto")</span></div>
+        <div class="tn-field"><label for="Stock">Cantidad disponible</label><div class="tn-stepper"><button type="button" data-tn-step="-1" aria-label="Disminuir cantidad">−</button><input class="tn-input" id="Stock" name="Stock" type="number" min="0" max="999999" step="1" value="@(Model.Entrada.Stock ?? 1)" required aria-describedby="tn-err-stock" /><button type="button" data-tn-step="1" aria-label="Aumentar cantidad">+</button></div><span class="tn-field-error" id="tn-err-stock">@Html.ValidationMessage("Stock")</span></div>
+      </div>
+      <p class="tn-hint">Teclado: Esc para cancelar · Enter o Ctrl+S para guardar.</p>
+      <div class="tn-cta-row"><button type="submit" class="tn-btn tn-btn--primary">Guardar producto ↗</button><a class="tn-btn tn-btn--ghost" asp-controller="Interfaz" asp-action="Inventario" data-tn-cancel>Cancelar</a></div>
+    </form>
+    <aside class="tn-glass tn-card tn-preview" data-tn-reveal aria-label="Vista previa del producto"><div class="tn-card-img"><span class="tn-tag">Vista previa</span><img src="~/img/productos/laptop-2.jpg" alt="Laptop tecnológica, fotografía de referencia" width="900" height="700" /></div><div class="tn-card-body"><h3 data-prev="nombre">Nombre del producto</h3><span class="tn-sku" data-prev="sku">SKU-000</span><div class="tn-price-row"><span class="tn-price" data-prev="precio">Bs 0,00</span><span class="tn-stock"><span data-prev="stock">1</span> en stock</span></div></div></aside>
+  </div>
+</section>

@@ -1,0 +1,39 @@
+@model TecnoNovaCRUD.Models.TecnoNovaPage
+@using System.Globalization
+@{
+    ViewData["Title"] = "Catálogo";
+    var bo = CultureInfo.GetCultureInfo("es-BO");
+}
+<section class="tn-page" data-tn-page="catalog">
+  <span class="tn-eyebrow" data-tn-reveal>02 / LABORATORIO HOLOGRÁFICO</span>
+  <h1 class="tn-h2" data-tn-reveal>Catálogo <em style="color:var(--tn-accent);font-style:normal">TecnoNova</em></h1>
+  <p class="tn-lead" data-tn-reveal>@Model.Productos.Count productos disponibles. @(Model.ModoDemostracion ? "Datos de demostración guardados en un archivo local." : "Datos reales de PostgreSQL.") Las fotos muestran equipos de referencia.</p>
+  @if (Model.ModoDemostracion){<div class="tn-demo-banner" role="status">MODO DEMOSTRACIÓN · Datos guardados en un archivo local. Para usar PostgreSQL, configura ConnectionStrings:TecnoNova.</div>}
+  @if (Model.SinConexion){<div class="tn-db-warning" role="status">No pudimos conectar con PostgreSQL. Revisa la configuración de la base de datos.</div>}
+  @if (TempData["Mensaje"] is string mensaje){<div class="tn-success" role="status">@mensaje</div>}
+  <div class="tn-toolbar" data-tn-reveal>
+    <button type="button" class="tn-chip" data-tn-filter="" aria-pressed="true">Todos</button>
+    @foreach (var c in Model.Categorias){<button type="button" class="tn-chip" data-tn-filter="@c.Nombre" aria-pressed="false">@c.Nombre</button>}
+    <input class="tn-input tn-search" type="search" placeholder="Buscar nombre o SKU…" data-tn-search aria-label="Buscar productos" />
+    <button class="tn-btn tn-btn--primary tn-btn--sm" type="button" data-tn-open-modal>+ Nuevo producto</button>
+  </div>
+  <div class="tn-grid">
+    @foreach (var p in Model.Productos)
+    {
+      <article class="tn-glass tn-card" data-tn-reveal data-tn-tilt data-tn-card data-categoria="@p.CategoriaNombre" data-nombre="@((p.Nombre + " " + p.Sku).ToLowerInvariant())">
+        <div class="tn-card-img"><span class="tn-tag">@p.CategoriaNombre</span><partial name="_ProductoFoto" model="@($"{p.Nombre}|{p.CategoriaNombre}")" /></div>
+        <div class="tn-card-body">
+          <h3>@p.Nombre</h3><span class="tn-sku">@p.Sku</span>
+          <div class="tn-price-row"><span class="tn-price">Bs @p.Precio.ToString("N2",bo)</span><span class="tn-stock @(p.Stock < 5 ? "is-low" : "")">@p.Stock en stock</span></div>
+          <div class="tn-cta-row" style="margin-top:16px">
+            <a class="tn-btn tn-btn--ghost tn-btn--sm" asp-controller="Productos" asp-action="Edit" asp-route-id="@p.Id" data-tn-native>Editar</a>
+            <a class="tn-btn tn-btn--ghost tn-btn--sm" asp-controller="Productos" asp-action="Delete" asp-route-id="@p.Id" data-tn-native>Eliminar</a>
+          </div>
+        </div>
+      </article>
+    }
+  </div>
+  <div class="tn-glass tn-empty" data-tn-empty hidden>No encontramos productos para esa búsqueda. <button class="tn-btn tn-btn--primary tn-btn--sm" type="button" data-tn-clear-filters>Ver todos</button></div>
+  @if (!Model.Productos.Any() && !Model.SinConexion){<div class="tn-glass tn-empty-static">Tu catálogo está vacío. <a asp-controller="Interfaz" asp-action="Nuevo">Registra el primer equipo</a>.</div>}
+</section>
+<partial name="_RegistroModal" model="Model" />
