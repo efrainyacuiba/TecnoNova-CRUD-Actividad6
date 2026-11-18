@@ -1,0 +1,171 @@
+﻿@model TecnoNovaCRUD.Models.Venta
+@using TecnoNovaCRUD.Models
+@{
+    ViewData["Title"] = "Registrar Venta";
+    var productos = ViewBag.Productos as IEnumerable<Producto> ?? Enumerable.Empty<Producto>();
+}
+
+<div class="container mt-4">
+    <h2>Registro de Ventas</h2>
+    <p class="text-muted">Operación maestro-detalle</p>
+
+    @if (TempData["Mensaje"] != null)
+    {
+        <div class="alert alert-success">@TempData["Mensaje"]</div>
+    }
+
+    <div asp-validation-summary="All" class="alert alert-danger"></div>
+
+    <form asp-action="Create" method="post">
+        @Html.AntiForgeryToken()
+
+        <div class="mb-3">
+            <label class="form-label">Cliente</label>
+            <input asp-for="Cliente" class="form-control" />
+        </div>
+
+        <h4>Productos de la venta</h4>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label class="form-label">Seleccionar producto</label>
+                <select id="productoSelect" class="form-select">
+                    <option value="">Seleccione un producto</option>
+                    @foreach (var p in productos)
+                    {
+                        <option value="@p.Id"
+                                data-nombre="@p.Nombre"
+                                data-precio="@p.Precio">
+                            @p.Nombre - Bs. @p.Precio
+                        </option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Cantidad</label>
+                <input id="cantidadInput" type="number" min="1" value="1" class="form-control" />
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="button" id="agregarBtn" class="btn btn-primary w-100">
+                    Agregar
+                </button>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Producto</th>
+                        <th>Precio</th>
+                        <th>Cantidad</th>
+                        <th>Subtotal</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="detalleTabla"></tbody>
+            </table>
+        </div>
+
+        <h4 class="text-end">
+            Total: Bs. <span id="totalVenta">0.00</span>
+        </h4>
+
+        <input type="hidden" name="Detalles" value="" disabled />
+
+        <button type="submit" class="btn btn-success mt-3">
+            Registrar Venta
+        </button>
+        <a asp-controller="Interfaz" asp-action="Index" class="btn btn-secondary mt-3">
+            Volver
+        </a>
+    </form>
+</div>
+
+<script>
+    const detalles = [];
+
+    const productoSelect = document.getElementById("productoSelect");
+    const cantidadInput = document.getElementById("cantidadInput");
+    const detalleTabla = document.getElementById("detalleTabla");
+    const totalVenta = document.getElementById("totalVenta");
+
+    document.getElementById("agregarBtn").addEventListener("click", function () {
+        const opcion = productoSelect.selectedOptions[0];
+        const id = parseInt(productoSelect.value);
+        const cantidad = parseInt(cantidadInput.value);
+
+        if (!id || !opcion || cantidad <= 0 || !Number.isInteger(cantidad)) {
+            alert("Selecciona un producto y una cantidad válida.");
+            return;
+        }
+
+        const nombre = opcion.dataset.nombre;
+        const precio = parseFloat(opcion.dataset.precio);
+
+        const existente = detalles.find(d => d.idProducto === id);
+
+        if (existente) {
+            existente.cantidad += cantidad;
+        } else {
+            detalles.push({
+                idProducto: id,
+                nombreProducto: nombre,
+                precioUnitario: precio,
+                cantidad: cantidad
+            });
+        }
+
+        productoSelect.value = "";
+        cantidadInput.value = 1;
+        dibujarTabla();
+    });
+
+    function dibujarTabla() {
+        detalleTabla.innerHTML = "";
+        let total = 0;
+
+        detalles.forEach((d, i) => {
+            const subtotal = d.cantidad * d.precioUnitario;
+            total += subtotal;
+
+            const fila = document.createElement("tr");
+
+            fila.innerHTML = `
+                <td>${d.nombreProducto}</td>
+                <td>Bs. ${d.precioUnitario.toFixed(2)}</td>
+                <td>${d.cantidad}</td>
+                <td>Bs. ${subtotal.toFixed(2)}</td>
+                <td>
+                    <button type="button" class="btn btn-danger btn-sm"
+                            onclick="eliminarProducto(${i})">Eliminar</button>
+                </td>
+            `;
+
+            detalleTabla.appendChild(fila);
+
+            const campos = [
+                ["IdProducto", d.idProducto],
+                ["NombreProducto", d.nombreProducto],
+                ["Cantidad", d.cantidad],
+                ["PrecioUnitario", d.precioUnitario]
+            ];
+
+            campos.forEach(([campo, valor]) => {
+                const input = document.createElement("input");
+                input.type = "hidden";
+                input.name = `Detalles[${i}].${campo}`;
+                input.value = valor;
+                document.querySelector("form").appendChild(input);
+            });
+        });
+
+        totalVenta.textContent = total.toFixed(2);
+    }
+
+    function eliminarProducto(indice) {
+        detalles.splice(indice, 1);
+        document.querySelectorAll('input[name^="Detalles["]').forEach(e => e.remove());
+        dibujarTabla();
+    }
+</script>
